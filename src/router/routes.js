@@ -3,7 +3,11 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      {path: '', component: () => import('pages/Index.vue')}
+      {path: '/', component: () => import('pages/Index.vue'),meta:'/'},
+
+      {path: '/business', component: () => import('pages/business/BusinessIndex'),meta:'/business'},
+      {path: '/business/create', component: () => import('pages/business/BusinessCreate'),meta:'/business'},
+      {path: '/business/:id/edit', component: () => import('pages/business/BusinessReadUpdate'),meta:'/business'}
     ]
   },
   {

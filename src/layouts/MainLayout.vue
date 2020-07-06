@@ -44,7 +44,7 @@
       show-if-above
       bordered
       content-class="bg-grey-1"
-      :width="280"
+      :width="250"
     >
       <q-list>
         <q-item-label
@@ -61,7 +61,7 @@
           </span>
         </q-item-label>
 
-        <q-item v-for="(link,index) in essentialLinks"
+        <q-item :active="currentRoute==link.link" v-for="(link,index) in essentialLinks"
                 :key="index"
                 clickable
                 :to="link.link"
@@ -97,6 +97,7 @@
 
     data() {
       return {
+        currentRoute:'/',
         leftDrawerOpen: false,
         essentialLinks: [
           {
@@ -126,7 +127,6 @@
         ]
       }
     },
-
     methods: {
       logout() {
         LocalStorage.remove('userInfo');
@@ -137,6 +137,10 @@
       let self = this;
       let user_info = LocalStorage.getItem('userInfo');
       await self.$store.dispatch('auth/updateUserData', user_info);
+      await self.$store.dispatch('business/fetchBusiness');
+    },
+    updated() {
+      this.currentRoute = this.$router.currentRoute.meta;
     }
   }
 </script>
