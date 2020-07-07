@@ -17,7 +17,7 @@ router.post('/', upload.single('logo'), async (req, res, next) => {
   try {
     let host = 'http://localhost:3000/'
     let data = JSON.parse(req.body.data);
-    data.logo = host+'files/' + req.file.filename;
+    data.logo = host+'images/' + req.file.filename;
     let business = new Business(data);
     await business.save();
     res.json({
@@ -32,11 +32,26 @@ router.post('/', upload.single('logo'), async (req, res, next) => {
     })
   }
 });
+// POST request - create a new business
+router.delete('/:id/delete', upload.single('logo'), async (req, res, next) => {
+  try {
+    let id = req.params.id
+    await Business.findByIdAndDelete(id);
+    res.json({
+      status: true,
+      message: 'Successfully deleted!'
+    })
+  } catch (e) {
+    res.json({
+      status: false,
+      message: e.message.split(':')[0]
+    })
+  }
+});
 // GET request - fetch businesses
 router.get('/', async (req, res, next) => {
   try {
-    let businesses = Business.find();
-    await businesses.save();
+    let businesses = await Business.find();
     res.json({
       status: true,
       data: businesses,

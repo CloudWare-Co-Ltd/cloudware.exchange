@@ -21,14 +21,14 @@
               </template>
             </q-input>
             <q-space/>
-            <q-btn round color="primary" icon="add" to="/business/create"/>
+            <q-btn round color="secondary" icon="add" to="/business/create"/>
           </template>
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td key="_id" :props="props" class="q-gutter-x-xs">
-                <q-btn size="10px" flat round color="primary" dense icon="fas fa-eye"
+                <q-btn size="10px" outline round color="primary" dense icon="fas fa-eye"
                        @click=""/>
-                <q-btn size="10px" flat round color="negative" dense icon="delete"
+                <q-btn size="10px" outline round color="negative" dense icon="delete"
                        @click="destroy(props.row._id)"/>
               </q-td>
               <q-td key="logo" :props="props">

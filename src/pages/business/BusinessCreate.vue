@@ -1,100 +1,117 @@
 <template>
   <q-page class="q-px-xs">
     <q-card square>
-      <q-card-actions align="center">
-        <q-btn class="full-width" color="grey" icon="arrow_back" v-go-back.single/>
-      </q-card-actions>
       <q-card-section>
         <q-form
-          @submit="onSubmit"
+          @submit="onSubmit(isBack)"
           class="q-gutter-md"
           ref="addForm"
         >
-          <q-card flat bordered class="my-card bg-grey-1">
+          <q-card flat bordered class="bg-grey-1" square>
             <q-card-section>
               <div class="row q-gutter-x-sm q-mb-sm">
-                <q-item-label class="q-my-sm">
-                  ឈ្មោះខ្មែរ
+                <q-item-label class="q-my-sm text-h5">
+                  Add Business
                 </q-item-label>
               </div>
               <div class="row q-gutter-x-sm q-mb-sm">
                 <q-input
-                  class="col"
-                  outlined
-                  v-model="data.lname"
-                  label="នាមត្រកូល"
+                  class="col-4"
                   square
+                  outlined
+                  v-model="data.name"
+                  label="Business Name"
                   lazy-rules
-                  :rules="[ val => !!val || 'សូមបំពេញចន្លោះ']"
+                  :rules="[ val => !!val || 'Please complete the field']"
                 />
                 <q-input
                   class="col"
-                  outlined
-                  v-model="data.fname"
-                  label="នាមខ្លួន"
                   square
+                  outlined
+                  v-model="data.address"
+                  label="Business Address"
                   lazy-rules
-                  :rules="[ val => !!val || 'សូមបំពេញចន្លោះ']"
+                  :rules="[ val => !!val || 'Please complete the field']"
+                />
+                <q-input
+                  class="col"
+                  square
+                  outlined
+                  v-model="data.contact"
+                  label="Business Contact"
+                  lazy-rules
+                  :rules="[ val => !!val || 'Please complete the field']"
+                />
+              </div>
+              <div class="row q-gutter-x-sm q-mb-sm">
+                <q-file
+                  @input="setLogo"
+                  class="col-4"
+                  square
+                  outlined
+                  v-model="data.logo"
+                  label="Business Logo"
+                  lazy-rules
+                  :rules="[ val => !!val || 'Please complete the field']"
+                />
+                <q-input
+                  @click="$refs.locationPicker.show()"
+                  class="col"
+                  square
+                  outlined
+                  v-model="data.location"
+                  label="Business Location"
+                  lazy-rules
+                  :rules="[ val => !!val || 'Please complete the field']"
                 />
               </div>
             </q-card-section>
           </q-card>
         </q-form>
       </q-card-section>
-      <q-card-actions align="center">
-        <q-btn class="full-width" color="primary" label="រក្សារទុក" @click="$refs.addForm.submit()">
-          <q-tooltip content-class="bg-white text-primary">Save</q-tooltip>
-        </q-btn>
+      <q-card-actions>
+        <q-btn class="q-ml-sm" icon="close" dense label="Save and Back" color="primary" no-caps @click="$refs.addForm.submit();isBack=true"/>
+        <q-btn icon="save" dense color="secondary" label="Save" no-caps @click="$refs.addForm.submit();isBack=false"/>
+        <q-btn icon="arrow_back" dense color="grey" flat label="Go Back" no-caps v-go-back.single/>
       </q-card-actions>
     </q-card>
+    <location-picker-maps @location="emmitLocation" ref="locationPicker"/>
   </q-page>
 </template>
 
 <script>
+  import LocationPickerMaps from "components/LocationPicker";
+
   export default {
     name: "BusinessCreate",
+    components: {LocationPickerMaps},
     data() {
       return {
+        isBack: false,
         formData: new FormData(),
         data: {
-          staff_type: '',
-          fname: '',
-          lname: '',
-          fname_latin: '',
-          lname_latin: '',
-          photo: '',
-          hostname: 'https://api.admin.mcu.edu.kh/',
-          gender: 'ប្រុស',
-          course: null,
-          dob: null,
-          skill: '',
-          education_system: '',
-          national_id: '',
-          official_no: '',
-          nssf_no: '',
-          nssf_no: '',
-          amcek_no: '',
-          bank_account_no: '',
-          bank_name: '',
-          start_work: '',
-          real_appointment: '',
-          email: '',
-          tel: '',
-          telegram: '',
-          facebook: '',
-          pob_address_book: '',
-          current_address_book: '',
+          name: null,
+          logo: null,
+          address: null,
+          contact: null,
+          location: null,
         },
       }
     },
-    computed: {
-    },
+    computed: {},
     methods: {
-      onSubmit() {
+      setLogo(val) {
+        let self = this;
+        self.formData.set('logo', val)
+      },
+      emmitLocation(val) {
+        this.data.location = val.lat + ',' + val.lng
+      },
+      onSubmit(isBack) {
         let self = this;
         let postData = JSON.stringify(self.data);
         self.formData.set("data", postData);
-        self.$store.dispatch('staff/storeStaff', self.formData).then(function (data) {
+        self.$store.dispatch('business/storeBusiness', self.formData).then(function (data) {
           if (data.status) {
             self.$q.notify({
               color: 'green-4',
@@ -102,7 +119,11 @@
               icon: 'cloud_done',
               message: data.message
             });
-            self.isShow = false
+            if (isBack) {
+              self.$router.go(-1)
+            } else {
+              self.clearForm()
+            }
           } else {
             self.$q.notify({
               color: 'red-5',
@@ -113,16 +134,14 @@
           }
         })
       },
-      filterFnAddressBook(val, update, abort) {
+      clearForm() {
         let self = this;
-        update(() => {
-          const needle = val.toLowerCase()
-          self.optionsAddressBook = self.getAddressBooks.filter(v => v.label.toLowerCase().indexOf(needle) > -1)
-        })
-      },
-      factoryFnUploadPhoto(file) {
-        let self = this;
-        self.formData.set('photo', file[0]);
+        for (let key of Object.keys(self.data)) {
+          self.data[key] = null
+        }
+        for (let key of self.formData.keys()) {
+          self.formData.delete(key)
+        }
       },
     }
   }

@@ -11,6 +11,16 @@
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
         <q-space/>
+        <q-select
+          ref="search" dark dense standout use-input hide-selected
+          color="black" :stack-label="false" label="Search or jump to..."
+          v-model="search" :options="menuOptions" @filter="filterFn" @input="jumpPage"
+          class="col-md-5 col-xs-6"
+        />
+        <q-space/>
+        <q-btn dense flat round icon="fas fa-bell">
+          <q-badge color="red" floating>16</q-badge>
+        </q-btn>
         <q-btn-dropdown
           icon="account_circle"
           flat
@@ -91,12 +101,12 @@
 
 <script>
   import {LocalStorage} from "quasar";
-
   export default {
     name: 'MainLayout',
 
     data() {
       return {
+        search:null,
         currentRoute:'/',
         leftDrawerOpen: false,
         essentialLinks: [
@@ -124,7 +134,18 @@
             icon: 'notification_important',
             link: '/notification'
           },
-        ]
+        ],
+        menuOptions:this.menuMap
+      }
+    },
+    computed:{
+      menuMap(){
+        return this.essentialLinks.map(function (x) {
+          return{
+            label:x.title,
+            value:x.link,
+          }
+        })
       }
     },
     methods: {
@@ -132,12 +153,40 @@
         LocalStorage.remove('userInfo');
         this.$router.push('/login')
       },
+      filterFn (val, update) {
+        if (val === '') {
+          update(() => {
+            this.menuOptions = this.menuMap
+          })
+          return
+        }
+
+        update(() => {
+          const needle = val.toLowerCase()
+          this.menuOptions = this.menuMap.filter(v => v.label.toLowerCase().indexOf(needle) > -1)
+        })
+      },
+      jumpPage(val){
+        if (this.$router.currentRoute.meta!==val.value){
+          this.$router.push({path:val.value})
+        }
+      }
     },
     async created() {
       let self = this;
       let user_info = LocalStorage.getItem('userInfo');
       await self.$store.dispatch('auth/updateUserData', user_info);
       await self.$store.dispatch('business/fetchBusiness');
+
+      document.onkeydown = evt => {
+        evt = evt || window.event;
+        if (evt.keyCode === 37 && evt.ctrlKey) {
+          self.$router.go(-1)
+        }
+        if (evt.keyCode === 39 && evt.ctrlKey) {
+          self.$router.go(1)
+        }
+      };
     },
     updated() {
       this.currentRoute = this.$router.currentRoute.meta;
