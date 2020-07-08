@@ -8,7 +8,8 @@ const userSchema = new Schema({
   phone: {type: String, required: true, unique: true},
   password: {type: String, required: true},
   role: {type: String, default:'user'},
-  verify: {type: Boolean, default:false}
+  verify: {type: Boolean, default:false},
+  business: {type: Schema.Types.ObjectID, ref: 'Business',default:null},
 })
 userSchema.pre('save', async function (next) {
   const user = this;

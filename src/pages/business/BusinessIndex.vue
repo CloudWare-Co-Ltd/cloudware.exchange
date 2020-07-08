@@ -5,7 +5,7 @@
         <q-table
           square
           class="table-virtual-scroll no-shadow"
-          :data="getBusinesses"
+          :data="Object.freeze(getBusinesses)"
           :columns="columns"
           row-key="name"
           :filter="filter"
@@ -27,7 +27,7 @@
             <q-tr :props="props">
               <q-td key="_id" :props="props" class="q-gutter-x-xs">
                 <q-btn size="10px" outline round color="primary" dense icon="fas fa-eye"
-                       @click=""/>
+                       :to="`/business/${props.row._id}/edit`"/>
                 <q-btn size="10px" outline round color="negative" dense icon="delete"
                        @click="destroy(props.row._id)"/>
               </q-td>

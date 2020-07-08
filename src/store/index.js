@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import auth from './auth'
 import business from './business'
+import user from './user'
 
 Vue.use(Vuex)
 export default function (/* { ssrContext } */) {
@@ -10,6 +11,7 @@ export default function (/* { ssrContext } */) {
     modules: {
       auth,
       business,
+      user,
     },
     strict: process.env.DEV
   })
