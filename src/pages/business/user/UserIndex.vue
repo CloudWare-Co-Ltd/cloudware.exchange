@@ -6,44 +6,40 @@
       :data="Object.freeze(getUsers)"
       :columns="columns"
       row-key="name"
-      :filter="filter"
       virtual-scroll
       :pagination.sync="pagination"
       :rows-per-page-options="[0]"
       :virtual-scroll-sticky-size-start="48"
     >
       <template v-slot:top="props">
-        <q-input class="col-md-5" outlined dense rounded v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search"/>
-          </template>
-        </q-input>
+        <span class="text-h5">
+          User List
+        </span>
         <q-space/>
-        <q-btn round color="secondary" icon="add" @click="$refs.userCreate.show()"/>
+        <q-btn round color="secondary" icon="add" @click="$refs.userCreate.show(business)"/>
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="_id" :props="props" class="q-gutter-x-xs">
-            <q-btn size="10px" outline round color="primary" dense icon="fas fa-eye" @click="$refs.userCreate.show()"/>
+            <q-btn size="10px" outline round color="primary" dense icon="edit" @click="$refs.userReadEdit.show(business,props.row)"/>
             <q-btn size="10px" outline round color="negative" dense icon="delete"
                    @click="destroy(props.row._id)"/>
           </q-td>
-          <q-td key="logo" :props="props">
+          <q-td key="photo" :props="props">
             <q-avatar size="60px" class="shadow-1">
-              <q-img :src="props.row.logo"/>
+              <q-img :src="props.row.photo"/>
             </q-avatar>
+          </q-td>
+          <q-td key="role.value" :props="props">
+            <q-badge outline align="middle" color="primary">
+              {{props.row.role.label}}
+            </q-badge>
           </q-td>
           <q-td key="name" :props="props">
             {{props.row.name}}
           </q-td>
-          <q-td key="address" :props="props">
-            {{props.row.address}}
-          </q-td>
-          <q-td key="contact" :props="props">
-            {{props.row.contact}}
-          </q-td>
-          <q-td key="location" :props="props">
-            {{props.row.location}}
+          <q-td key="phone" :props="props">
+            {{props.row.phone}}
           </q-td>
           <q-td key="date" :props="props">
             {{props.row.date}}
@@ -52,30 +48,36 @@
       </template>
     </q-table>
     <user-create ref="userCreate"/>
+    <user-read-edit ref="userReadEdit"/>
   </q-card-section>
 </template>
 
 <script>
   import {date} from "quasar";
   import UserCreate from "pages/business/user/UserCreate";
+  import UserReadEdit from "pages/business/user/UserReadEdit";
 
   export default {
     name: "UserIndex",
-    components: {UserCreate},
+    components: {UserReadEdit, UserCreate},
+    props:{
+      business:{
+        type:String,
+        required:true
+      }
+    },
     data() {
       return {
         //table
-        filter: '',
         pagination: {
           rowsPerPage: 0
         },
         columns: [
           {name: '_id', align: 'left', label: '', field: '_id'},
-          {name: 'logo', align: 'left', field: 'logo'},
-          {name: 'name', align: 'left', label: 'Business Name', field: 'name', sortable: true},
-          {name: 'address', align: 'left', label: 'Address', field: 'address', sortable: true},
-          {name: 'contact', align: 'left', label: 'Contact', field: 'contact', sortable: true},
-          {name: 'location', align: 'left', label: 'Location', field: 'location', sortable: true},
+          {name: 'photo', align: 'left', field: 'photo'},
+          {name: 'role.value', align: 'left', label: 'Role', field: 'role.value', sortable: true},
+          {name: 'name', align: 'left', label: 'Full Name', field: 'name', sortable: true},
+          {name: 'phone', align: 'left', label: 'Phone No', field: 'phone', sortable: true},
           {name: 'date', align: 'left', label: 'Registered Date', field: 'date', sortable: true},
         ],
         //end table

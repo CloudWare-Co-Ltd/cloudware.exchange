@@ -39,9 +39,9 @@ export async function updateUser({commit}, data) {
   }
 }
 
-export async function fetchUser({commit}) {
+export async function fetchUserByBusiness({commit},id) {
   try {
-    const res = await $http.get('/users');
+    const res = await $http.get('/users/'+id+'/fetch-by-business');
     if (res.data.status) {
       commit('SET_USER', res.data);
     }

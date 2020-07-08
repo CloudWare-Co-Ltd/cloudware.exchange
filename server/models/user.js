@@ -7,14 +7,21 @@ const userSchema = new Schema({
   photo: {type: String, required: true},
   phone: {type: String, required: true, unique: true},
   password: {type: String, required: true},
-  role: {type: String, default:'user'},
-  verify: {type: Boolean, default:false},
-  business: {type: Schema.Types.ObjectID, ref: 'Business',default:null},
-})
+  role: {type: Schema.Types.Mixed, default: {label: 'User', value: 'user'}},
+  verify: {type: Boolean, default: false},
+  business: {type: Schema.Types.ObjectID, ref: 'Business', default: null},
+}, {timestamps: true})
 userSchema.pre('save', async function (next) {
   const user = this;
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8)
+  }
+  next();
+});
+userSchema.pre('findOneAndUpdate', async function (next) {
+  const user = this;
+  if (user._update.$set.password) {
+    user._update.$set.password = await bcrypt.hash(user._update.$set.password, 8);
   }
   next();
 });
@@ -25,8 +32,8 @@ userSchema.methods.generateAuthToken = async function () {
   await user.save();
   return token;
 };
-userSchema.methods.comparePassword = function (password,next) {
+userSchema.methods.comparePassword = function (password, next) {
   const user = this;
-  return bcrypt.compareSync(password,user.password)
+  return bcrypt.compareSync(password, user.password)
 };
 module.exports = mongoose.model('User', userSchema)

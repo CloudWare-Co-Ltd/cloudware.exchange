@@ -75,7 +75,7 @@
               </q-card-section>
             </q-tab-panel>
             <q-tab-panel name="user" class="no-padding">
-              <user-index/>
+              <user-index :business="$route.params.id"/>
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -188,7 +188,8 @@
     },
     created() {
       let self = this;
-      self.$store.dispatch('business/editBusiness', self.$route.params.id).then(function (data) {
+      let business_id = self.$route.params.id;
+      self.$store.dispatch('business/editBusiness', business_id).then(function (data) {
         let business = data.data;
         self.data.name = business.name;
         self.data.address = business.address;
@@ -201,6 +202,7 @@
             self.data.logo = new File([blob], filename, {type: 'image/' + filename.split('.')[1]})
           });
       })
+      self.$store.dispatch('user/fetchUserByBusiness',business_id)
     }
   }
 </script>

@@ -10,24 +10,25 @@
       </q-bar>
       <q-card-section>
         <q-form
-          @submit="onSubmit"
+          ref="addForm"
+          @submit="onSubmit(isBack)"
           @reset=""
           class="q-gutter-y-lg"
         >
           <div class="row q-gutter-x-xs">
             <q-file
-              @input="setLogo"
+              @input="setPhoto"
               class="col"
               square
               outlined
-              v-model="data.logo"
+              v-model="data.photo"
               label="Profile"
               hint="Attach profile"
               lazy-rules
               :rules="[ val => !!val || 'Please complete the field']"
             >
               <template v-slot:prepend>
-                <q-icon name="image" />
+                <q-icon name="image"/>
               </template>
             </q-file>
             <q-input
@@ -42,7 +43,7 @@
               :rules="[ val => !!val||'Please enter your name' ]"
             >
               <template v-slot:prepend>
-                <q-icon name="person" />
+                <q-icon name="person"/>
               </template>
             </q-input>
           </div>
@@ -60,10 +61,11 @@
               :rules="[ val => !!val||'Please enter your phone' ]"
             >
               <template v-slot:prepend>
-                <q-icon name="call" />
+                <q-icon name="call"/>
               </template>
             </q-input>
             <q-input
+              autocomplete="off"
               class="col"
               square
               clearable
@@ -76,7 +78,7 @@
               :rules="[val => !!val||'Please enter your password']"
             >
               <template v-slot:prepend>
-                <q-icon name="lock" />
+                <q-icon name="lock"/>
               </template>
               <template v-slot:append>
                 <q-icon
@@ -87,10 +89,29 @@
               </template>
             </q-input>
           </div>
+          <div class="row q-gutter-x-xs">
+            <q-select
+              :options="Object.freeze(getRoles)"
+              class="col"
+              square
+              clearable
+              outlined
+              v-model="data.role"
+              label="User role"
+              hint="Select user role"
+              lazy-rules
+              :rules="[ val => !!val||'Please select user role' ]"
+            >
+              <template v-slot:prepend>
+                <q-icon name="fas fa-users-cog"/>
+              </template>
+            </q-select>
+          </div>
         </q-form>
       </q-card-section>
       <q-card-actions class="bg-grey-3">
-        <q-btn class="q-ml-sm" icon="close" dense label="Save and Close" color="primary" no-caps @click="$refs.addForm.submit();isBack=true"/>
+        <q-btn class="q-ml-sm" icon="close" dense label="Save and Close" color="primary" no-caps
+               @click="$refs.addForm.submit();isBack=true"/>
         <q-btn icon="save" dense color="secondary" label="Save" no-caps @click="$refs.addForm.submit();isBack=false"/>
         <q-btn icon="close" dense color="grey" flat label="Close" no-caps v-close-popup/>
       </q-card-actions>
@@ -107,31 +128,49 @@
         isBack: false,
         isShow: false,
         formData: new FormData(),
-        data:{
-          name:'',
-          photo:'https://cdn.quasar.dev/img/boy-avatar.png',
-          phone:'',
-          password:'',
+        data: {
+          name: '',
+          photo: null,
+          phone: '',
+          password: '',
+          role: null,
+          business: null,
         }
       }
     },
+    computed:{
+      getRoles(){
+        return this.$store.getters['user/getRoles']
+      }
+    },
     methods: {
-      show() {
+      show(business) {
         this.isShow = true
+        this.data.business = business
       },
-      onSubmit() {
+      setPhoto(val) {
         let self = this;
-        self.$store.dispatch('staff_type/storeStaffType',self.data).then(function (data) {
-          if (data.status){
+        self.formData.set('photo', val)
+      },
+      onSubmit(isBack) {
+        let self = this;
+        let postData = JSON.stringify(self.data);
+        self.formData.set("data", postData);
+        self.$store.dispatch('user/storeUser', self.formData).then(function (data) {
+          if (data.status) {
             self.$q.notify({
               color: 'green-4',
               textColor: 'white',
               icon: 'cloud_done',
               message: data.message
             });
-            self.clearForm();
-            self.isShow = false;
-          }else {
+            if (isBack) {
+              self.isShow = false;
+              self.clearForm()
+            } else {
+              self.clearForm()
+            }
+          } else {
             self.$q.notify({
               color: 'red-5',
               textColor: 'white',
@@ -146,10 +185,9 @@
         for (let key of Object.keys(self.data)) {
           self.data[key] = null
         }
-      },
-      setLogo(val) {
-        let self = this;
-        self.formData.set('logo', val)
+        for (let key of self.formData.keys()) {
+          self.formData.delete(key)
+        }
       },
     }
   }
