@@ -3,7 +3,7 @@
     <q-table
       square
       class="table-virtual-scroll no-shadow"
-      :data="Object.freeze(getUsers)"
+      :data="Object.freeze(getExchangeRates)"
       :columns="columns"
       row-key="_id"
       virtual-scroll
@@ -13,53 +13,45 @@
     >
       <template v-slot:top="props">
         <span class="text-h6">
-          User List
+          Exchange List
         </span>
         <q-space/>
-        <q-btn round color="secondary" icon="add" @click="$refs.userCreate.show(business)"/>
+        <q-btn round color="secondary" icon="add" @click="$refs.exchangeRateCreate.show(business)"/>
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="_id" :props="props" class="q-gutter-x-xs">
-            <q-btn size="10px" outline round color="primary" dense icon="edit" @click="$refs.userReadEdit.show(business,props.row)"/>
+            <q-btn size="10px" outline round color="primary" dense icon="edit" @click="$refs.exchangeRateReadUpdate.show(business,props.row)"/>
             <q-btn size="10px" outline round color="negative" dense icon="delete"
                    @click="destroy(props.row._id)"/>
           </q-td>
-          <q-td key="photo" :props="props">
-            <q-avatar size="60px" class="shadow-1">
-              <q-img :src="props.row.photo"/>
-            </q-avatar>
-          </q-td>
-          <q-td key="role.value" :props="props">
+          <q-td key="base" :props="props">
             <q-badge outline align="middle" color="primary">
-              {{props.row.role.label}}
+              {{props.row.base}}
             </q-badge>
-          </q-td>
-          <q-td key="name" :props="props">
-            {{props.row.name}}
-          </q-td>
-          <q-td key="phone" :props="props">
-            {{props.row.phone}}
           </q-td>
           <q-td key="date" :props="props">
             {{props.row.date}}
           </q-td>
+          <q-td key="dateUpdate" :props="props">
+            {{props.row.dateUpdate}}
+          </q-td>
         </q-tr>
       </template>
     </q-table>
-    <user-create ref="userCreate"/>
-    <user-read-edit ref="userReadEdit"/>
+    <exchange-rate-create ref="exchangeRateCreate"/>
+    <exchange-rate-read-update ref="exchangeRateReadUpdate"/>
   </q-card-section>
 </template>
 
 <script>
   import {date} from "quasar";
-  import UserCreate from "pages/business/user/UserCreate";
-  import UserReadEdit from "pages/business/user/UserReadUpdate";
+  import ExchangeRateCreate from "pages/business/exchange-rate/ExchangeRateCreate";
+  import ExchangeRateReadUpdate from "pages/business/exchange-rate/ExchangeRateReadUpdate";
 
   export default {
     name: "UserIndex",
-    components: {UserReadEdit, UserCreate},
+    components: {ExchangeRateReadUpdate, ExchangeRateCreate},
     props:{
       business:{
         type:String,
@@ -74,29 +66,28 @@
         },
         columns: [
           {name: '_id', align: 'left', label: '', field: '_id'},
-          {name: 'photo', align: 'left', field: 'photo'},
-          {name: 'role.value', align: 'left', label: 'Role', field: 'role.value', sortable: true},
-          {name: 'name', align: 'left', label: 'Full Name', field: 'name', sortable: true},
-          {name: 'phone', align: 'left', label: 'Phone No', field: 'phone', sortable: true},
-          {name: 'date', align: 'left', label: 'Registered Date', field: 'date', sortable: true},
+          {name: 'base', align: 'left', label: 'Base Currency', field: 'base', sortable: true},
+          {name: 'date', align: 'left', label: 'Created Date', field: 'date', sortable: true},
+          {name: 'dateUpdate', align: 'left', label: 'Updated Date', field: 'dateUpdate', sortable: true},
         ],
         //end table
       }
     },
     computed: {
-      getUsers() {
+      getExchangeRates() {
         let self = this;
-        return self.$store.getters['user/getUsers'].map(function (x) {
+        return self.$store.getters['exchange_rate/getExchangeRates'].map(function (x) {
           return {
             ...x,
             date: self.formatDate(x.createdAt),
+            dateUpdate: self.formatDate(x.updatedAt),
           }
         })
       }
     },
     methods: {
       formatDate(timeStamp) {
-        return date.formatDate(timeStamp, 'DD/MM/YYYY')
+        return date.formatDate(timeStamp, 'DD/MM/YYYY h:mm:ss a')
       },
       destroy(id) {
         let self = this;
@@ -106,12 +97,12 @@
           cancel: true,
           persistent: true
         }).onOk(() => {
-          self.deleteUser(id)
+          self.deleteExchangeRate(id)
         })
       },
-      deleteUser(id) {
+      deleteExchangeRate(id) {
         let self = this;
-        self.$store.dispatch('user/deleteUser', id).then(function (data) {
+        self.$store.dispatch('exchange_rate/deleteExchangeRate', id).then(function (data) {
           if (data.status) {
             self.$q.notify({
               color: 'green-4',

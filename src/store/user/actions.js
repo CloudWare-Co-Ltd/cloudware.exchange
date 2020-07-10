@@ -12,12 +12,12 @@ export async function storeUser({commit}, data) {
   }
 }
 
-export async function updateUserLogo({commit}, data) {
+export async function updateUserPhoto({commit}, data) {
   let id = data.get('id');
   let putData = new FormData();
-  putData.set('logo', data.get('logo'))
+  putData.set('photo', data.get('photo'))
   try {
-    const res = await $http.put('/users/' + id + '/update-logo', putData);
+    const res = await $http.put('/users/' + id + '/update-photo', putData);
     if (res.data.status) {
       commit('UPDATE_USER', res.data);
     }
@@ -39,9 +39,9 @@ export async function updateUser({commit}, data) {
   }
 }
 
-export async function fetchUserByBusiness({commit},id) {
+export async function fetchUserByBusiness({commit}, id) {
   try {
-    const res = await $http.get('/users/'+id+'/fetch-by-business');
+    const res = await $http.get('/users/' + id + '/fetch-by-business');
     if (res.data.status) {
       commit('SET_USER', res.data);
     }

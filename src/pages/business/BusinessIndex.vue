@@ -7,7 +7,7 @@
           class="table-virtual-scroll no-shadow"
           :data="Object.freeze(getBusinesses)"
           :columns="columns"
-          row-key="name"
+          row-key="_id"
           :filter="filter"
           virtual-scroll
           :pagination.sync="pagination"

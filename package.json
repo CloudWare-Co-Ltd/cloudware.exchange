@@ -12,6 +12,7 @@
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
     "core-js": "^3.6.5",
+    "lodash": "^4.17.19",
     "quasar": "^1.0.0",
     "vue2-location-picker": "^1.2.0"
   },

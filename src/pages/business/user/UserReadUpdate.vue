@@ -153,7 +153,25 @@
       },
       setPhoto(val) {
         let self = this;
+        self.formData.set('id', self.data.id)
         self.formData.set('photo', val)
+        self.$store.dispatch('user/updateUserPhoto', self.formData).then(function (data) {
+          if (data.status) {
+            self.$q.notify({
+              color: 'green-4',
+              textColor: 'white',
+              icon: 'cloud_done',
+              message: data.message
+            });
+          } else {
+            self.$q.notify({
+              color: 'red-5',
+              textColor: 'white',
+              icon: 'warning',
+              message: data.message
+            })
+          }
+        })
       },
       updateUser(data) {
         let self = this;

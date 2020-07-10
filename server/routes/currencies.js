@@ -1,7 +1,5 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const middleware = require('../middlewares/verify-token')
-const User = require('../models/user');
+const Currency = require('../models/currency');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -18,21 +16,14 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 /********CRUD********/
 // CREATE
-router.post('/', upload.single('photo'), async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
-    let host = 'http://localhost:3000/'
-    let data = JSON.parse(req.body.data);
-    data.photo = host + 'images/' + req.file.filename;
-    let user = new User(data);
-    await user.save();
-    let token = jwt.sign(user.toJSON(), process.env.SECRET, {
-      expiresIn: 604800//1 weak
-    });
+    let currency = new Currency(req.body);
+    await currency.save();
     res.json({
       status: true,
-      token: token,
-      data: user,
-      message: 'Successfully create a new user'
+      data: currency,
+      message: 'Successfully saved'
     })
   } catch (e) {
     res.json({
@@ -41,15 +32,15 @@ router.post('/', upload.single('photo'), async (req, res, next) => {
     })
   }
 });
-// READ - read all users by business
+// READ - read all currencies by business
 router.get('/:id/fetch-by-business', async function (req, res, next) {
   try {
     let business_id = req.params.id
-    let users = await User.find({business: business_id});
-    if (users) {
+    let currencies = await Currency.find({business: business_id});
+    if (currencies) {
       res.json({
         status: true,
-        data: users
+        data: currencies
       })
     }
   } catch (e) {
@@ -59,14 +50,14 @@ router.get('/:id/fetch-by-business', async function (req, res, next) {
     })
   }
 });
-//UPDATE - user
+//UPDATE - currency
 router.put('/:id/update', async (req, res, next) => {
   let id = req.params.id;
   try {
-    let user = await User.findByIdAndUpdate(id, {$set: req.body}, {new: true});
+    let currency = await Currency.findByIdAndUpdate(id, {$set: req.body}, {new: true});
     res.json({
       status: true,
-      data: user,
+      data: currency,
       message: 'Successfully updated!'
     })
   } catch (e) {
@@ -76,18 +67,18 @@ router.put('/:id/update', async (req, res, next) => {
     })
   }
 });
-// UPDATE - user photo
+// UPDATE - currency photo
 router.put('/:id/update-photo', upload.single('photo'), async (req, res, next) => {
   let id = req.params.id;
   try {
     let host = 'http://localhost:3000/'
     req.body.photo = host+'images/' + req.file.filename;
     //update and remove file
-    let photo = await User.findByIdAndUpdate(id, {$set: req.body});
+    let photo = await Currency.findByIdAndUpdate(id, {$set: req.body});
     const image = path.join(__dirname, '../public/images/' + photo.photo.split('images/')[1]);
     fs.unlinkSync(image)
     //end update and remove file
-    let business = await User.findById(id);
+    let business = await Currency.findById(id);
     res.json({
       status: true,
       data: business,
@@ -105,11 +96,11 @@ router.delete('/:id/delete', async (req, res, next) => {
   try {
     let id = req.params.id
     //remove file
-    let user = await User.findById(id);
-    const image = path.join(__dirname, '../public/images/' + user.photo.split('images/')[1]);
+    let currency = await Currency.findById(id);
+    const image = path.join(__dirname, '../public/images/' + currency.photo.split('images/')[1]);
     fs.unlinkSync(image)
     //end remove file
-    await User.findByIdAndDelete(id);
+    await Currency.findByIdAndDelete(id);
     res.json({
       status: true,
       message: 'Successfully deleted!'

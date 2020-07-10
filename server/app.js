@@ -29,6 +29,8 @@ app.use('/', require('./routes/index'));
 app.use('/auths', require('./routes/auths'));
 app.use('/businesses', require('./routes/businesses'));
 app.use('/users', require('./routes/users'));
+app.use('/currencies', require('./routes/currencies'));
+app.use('/exchange-rates', require('./routes/exchcange-rates'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

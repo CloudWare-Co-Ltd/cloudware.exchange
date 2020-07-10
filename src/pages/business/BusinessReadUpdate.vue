@@ -77,6 +77,9 @@
             <q-tab-panel name="user" class="no-padding">
               <user-index :business="$route.params.id"/>
             </q-tab-panel>
+            <q-tab-panel name="exchange-rate" class="no-padding">
+              <exchange-rate-index :business="$route.params.id"/>
+            </q-tab-panel>
           </q-tab-panels>
         </q-card>
       </q-card-section>
@@ -91,10 +94,11 @@
 <script>
   import LocationPickerMaps from "components/LocationPicker";
   import UserIndex from "pages/business/user/UserIndex";
+  import ExchangeRateIndex from "pages/business/exchange-rate/ExchangeRateIndex";
 
   export default {
     name: "BusinessReadUpdate",
-    components: {UserIndex, LocationPickerMaps},
+    components: {ExchangeRateIndex, UserIndex, LocationPickerMaps},
     data() {
       return {
         isBack: false,
@@ -203,6 +207,8 @@
           });
       })
       self.$store.dispatch('user/fetchUserByBusiness',business_id)
+      self.$store.dispatch('currency/fetchCurrencyByBusiness',business_id)
+      self.$store.dispatch('exchange_rate/fetchExchangeRateByBusiness',business_id)
     }
   }
 </script>

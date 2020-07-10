@@ -12,8 +12,7 @@
         />
         <q-space/>
         <q-select
-          ref="search" dark dense standout use-input hide-selected
-          color="black" :stack-label="false" label="Search or jump to..."
+          ref="search" dark dense standout use-input hide-selected :stack-label="false" label="Search or jump to..."
           v-model="search" :options="menuOptions" @filter="filterFn" @input="jumpPage"
           class="col-md-5 col-xs-6"
         />
